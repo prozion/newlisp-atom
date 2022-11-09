@@ -25,15 +25,7 @@ fileTypes: [
   "lsp"
   "nl"
 ]
-'firstLineMatch': '^#!\\s*/.*\\bracket'
-foldingStartMarker: '''
-  (?x)^ [ \t]* \(
-  	  (?<par>
-  	    ( [^()\n]++ | \( \g<par> \)? )*+
-  	  )
-  	$
-'''
-foldingStopMarker: "^\\s*$"
+'firstLineMatch': '^#!\\s*/.*\\bnewlisp'
 patterns: [
   {
     include: "#comment"
@@ -75,7 +67,7 @@ repository:
   constants:
     patterns: [
       {
-        match: "\\b[true|false]\\b"
+        match: "\\b(true)|(false)\\b"
         name: "constant.language.boolean.racket"
       }
       {
@@ -87,9 +79,6 @@ repository:
         name: "constant.numeric.racket"
       }
     ]
-  illegal:
-    match: "[()]"
-    name: "invalid.illegal.parenthesis.racket"
   "language-functions":
     patterns: [
       {
@@ -108,76 +97,6 @@ repository:
         '''
       }
       {
-        name: "support.function.boolean-test.racket"
-        match: '''
-          (?x)
-          						(?<=(\\s|\\()) # preceded by space or (
-          						( char-alphabetic|char-lower-case|char-numeric|
-          						  char-ready|char-upper-case|char-whitespace|
-          						  (?:char|string)(?:-ci)?(?:=|<=?|>=?)|
-          						  atom|boolean|bound-identifier=|char|complex|
-          						  identifier|integer|symbol|free-identifier=|inexact|
-          						  eof-object|exact|list|(?:input|output)-port|pair|
-          						  real|rational|zero|vector|negative|odd|null|string|
-          						  eq|equal|eqv|even|number|positive|procedure|
-                        number|
-                        hash|hasheq|
-                        path|
-                        empty|null|false|void|
-                        not-empty
-          						)
-          						(\\?)		# name ends with ? sign
-          						(?=(\\s|\\()) # followed by space or (
-
-        '''
-        comment: '''
-
-          						These functions run a test, and return a boolean
-          						answer.
-
-        '''
-      }
-      {
-        name: "support.function.convert-type.racket"
-        match: '''
-          (?x)
-          						(?<=(\\s|\\()) # preceded by space or (
-          						( char->integer|exact->inexact|inexact->exact|
-          						  integer->char|symbol->string|list->vector|
-          						  list->string|identifier->symbol|vector->list|
-          						  string->list|string->number|string->symbol|
-          						  number->string|syntax->list|syntax->datum
-          						)
-          						(?=(\\s|\\()) # followed by space or (
-
-        '''
-        comment: '''
-
-          						These functions change one type into another.
-
-        '''
-      }
-      {
-        name: "support.function.with-side-effects.racket"
-        match: '''
-          (?x)
-          						(?<=(\\s|\\()) # preceded by space or (
-          						( set-(?:car|cdr)|				 # set car/cdr
-          						  (?:vector|string)-(?:fill|set) # fill/set string/vector
-          						)
-          						(!)			# name ends with ! sign
-          						(?=(\\s|\\()) # followed by space or (
-
-        '''
-        comment: '''
-
-        These functions are potentially dangerous because
-        they have side-effects which could affect other
-        parts of the program.
-
-        '''
-      }
-      {
         name: "keyword.operator.arithmetic.racket"
         match: "(?<=(\\s|\\())( >=?|<=?|=|[*/+-])(?=(\\s|\\())"
         comment: '''
@@ -192,7 +111,8 @@ repository:
       }
       {
         name: "support.function.module.racket"
-        match: "(require/typed|require|cond-require|module(\\+|\\*)?|provide|namespace-require|begin-for-syntax|lazy-require)"
+        # match: "(require/typed|require|cond-require|module(\\+|\\*)?|provide|namespace-require|begin-for-syntax|lazy-require)"
+        match: "(load)"
       }
       {
         name: "support.function.definition.racket"
@@ -203,96 +123,33 @@ repository:
         match: '''
           (?x)
           						(?<=(\\s|\\()) # preceded by space or (
-          						( append|apply|keyword-apply|approximate|
-          						  call-with-current-continuation|call/cc|catch|
-          						  construct-identifier|
-          						  for-each|force|cd|gen-counter|gen-loser|
-          						  generate-identifier|last-pair|length|let-syntax|
-          						  letrec-syntax|list|list-ref|list-tail|take|drop|load|log|
-                        vector|
-                        first|second|third|fourth|fifth|last|rest|
-          						  macro|magnitude|map|andmap|ormap|filter-map|map-streams|filter|filter-not|clean|foldl|foldr|reduce|max|member|memq|sort|
-                        lambda|curry|curryr|
-          						  memv|min|newline|nil|peek-char|rationalize|
-          						  read|read-char|return|reverse|sequence|substring|
-          						  transcript-off|transcript-on|
-          						  truncate|unwrap-syntax|values-list|write|write-char|
-                        void|identity|const|
-                        cartesian-product|permutations|combinations|group-by|argmin|argmax|
+          						(
+          						  # List processing, flow control and integer arithmetic
+          						  and|append|apply|args|assoc|begin|bind|bigint|case|catch|chop|clean|collect|cond|cons|constant|count|curry|def-new|define|define-macro|difference|do-until|do-while|doargs|dolist|dostring|dotimes|dotree|dup|ends-with|exists|eval|expand|extend|first|filter|find|find-all|flat|fn|for|for-all|if|index|intersect|lambda|lambda-macro|last|length|let|letex|letn|list|local|lookup|map|match|member|not|nth|or|pop|pop-assoc|push|quote|ref|ref-all|rest|replace|reverse|rotate|select|self|set|set-ref|set-ref-all|setf setq|silent|slice|sort|starts-with|swap|unify|unique|union|unless|until|when|while|
 
-          						  # cons, car, cdr, etc
-          						  m?cons|(set-)?(m)?c(a|d){1,4}r!?|
+          						  # String and conversion functions
+          						  address|append|bigint|bits|char|chop|dup|ends-with|encrypt|eval-string|eval-string-js|explode|extend|find|first|float|format|get-char|get-float|get-int|get-long|get-string|int|join|last|lower-case|member|name|nth|pack|parse|pop|push|regex|regex-comp|replace|rest|reverse|rotate|select|setf|slice|source|starts-with|string|sym|title-case|trim|unicode|unpack|upper-case|utf8|utf8len|
 
-                        # logic functions
-                        # or|and|not|
-                        negate|
+                        # Array functions
+                        append|array|array-list|array?|det|first|invert|last|mat|multiply|nth|rest|setf|slice|transpose|
 
-                        # iterators
-                        for|for\\*?/(fold|hash|list|vector|or|and)|
+                        # Predicates
+                        (array|atom|bigint|context|directory|empty|even|file|float|global|inf|integer|lambda|legal|list|macro|NaN|nil|null|odd|number|primitive|protected|quote|string|symbol|true|zero)\?|
 
-                        # generators
-                        range|
+                        # Date and datetime functions
+                        date|date-list|date-parse|date-value|now|time|time-of-day|
 
-          						  # unary math operators
-          						  abs|acos|angle|asin|assoc|assq|assv|atan|ceiling|
-          						  cos|floor|round|exact-round|exact-floor|exact-ceiling|sin|sqrt|tan|
-          						  (?:real|imag)-part|numerator|denominator|
+                        # Pattern recognition
+                        ends-with|find|find-all|match|parse|ref|ref-all|regex|replace|search|set-ref|set-ref-all|starts-with|unify|
 
-          						  # other math operators
-          						  modulo|exp|expt|remainder|quotient|lcm|
+                        # Input/output and file operations
+                        append-file|close|current-line|device|exec|open|peek|print|println|read|read-char|read-file|read-key|read-line|read-utf8|save|search|seek|write|write-char|write-file|write-line|
 
-                        # even more math functions
-                        add1|sub1|
+                        # File and directory management
+                        change-dir|copy-file|delete-file|directory|file-info|make-dir|real-path|remove-dir|rename-file|
 
-                        # hash functions
-                        hash-ref[*]?|hash-keys|hash-values|
-
-          						  # ports / files
-          						  call-with-(?:input|output)-file|
-          						  (?:close|current)-(?:input|output)-port|
-          						  with-(?:input|output)-from-file|
-          						  open-(?:input|output)-file|
-
-          						  # char-«foo»
-          						  char-(?:downcase|upcase|ready)|
-
-                        # error handling
-                        raise-syntax-error|with-handlers|error|errorf|
-
-          						  # make-«foo»
-          						  make-(?:polar|promise|rectangular|string|vector|hash)|
-
-          						  # string-«foo», vector-«foo»
-          						  string(?:-(?:append|copy|join|length|split|trim|ref|replace|downcase|upcase))?|
-          						  vector(?:-length|-ref)|
-
-                        # regexps functions
-                        regexp-(match\\*?|replace\\*?)|regexp|pregexp|
-
-                        # random
-                        random|
-
-                        # module system
-                        all-defined-out|except-out|all-from-out|for-syntax|prefix-in|only-in|rename-in|
-
-                        # evals
-                        eval|
-
-                        # unit test functions
-                        check|
-                        check(-(equal|not-equal|eq|not-eq|eqv|not-eqv|info))\\?|
-                        check-(pred|=|true|false|match|regexp-match|exn|info)|
-                        # test-(suite|case)|
-                        fail|
-
-          							# output functions
-          							print|printf|println|format|display|displayln|
-
-                        # flow control functions
-                        exit|
-
-                        # parameters
-                        make-parameter
+                        # System functions
+                        callback|catch|context|copy|debug|default|delete|env|exit|global|import|main-args|new|pretty-print|read-expr|reset|signal|sleep|struct|sym|symbols|timer|throw|throw-error|trace|trace-highlight|
           						)
           						(?=(\\s|\\(|\\))) # followed by space or ( or )
 
@@ -497,9 +354,6 @@ repository:
           {
             include: "#sexp"
           }
-          {
-            include: "#illegal"
-          }
         ]
       }
       {
@@ -520,9 +374,6 @@ repository:
           }
           {
             include: "#string"
-          }
-          {
-            include: "#illegal"
           }
         ]
       }
@@ -572,9 +423,6 @@ repository:
       }
       {
         include: "#sexp"
-      }
-      {
-        include: "#illegal"
       }
     ]
   string:

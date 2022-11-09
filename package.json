@@ -1,0 +1,11 @@
+{
+  "name": "language-nl",
+  "version": "0.0.1",
+  "description": "My syntax support for NewLisp",
+  "repository": "https://github.com/prozion/newlisp-atom",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {}
+}

@@ -1,31 +1,18 @@
 ﻿name: "Newlisp"
 scopeName: "source.newlisp"
-comment: '''
-
-  		The foldings do not currently work the way I want them to. This
-  		may be a limitation of the way they are applied rather than the
-  		regexps in use. Nonetheless, the foldings will end on the last
-  		identically indented blank line following an s-expression. Not
-  		ideal perhaps, but it works. Also, the #illegal pattern never
-  		matches an unpaired ( as being illegal. Why?! -- Rob Rix
-
-  		Ok, hopefully this grammar works better on quoted stuff now.  It
-  		may break for fancy macros, but should generally work pretty
-  		smoothly.  -- Jacob Rus
-
-  		I have attempted to get this under control but because of the way folding
-  		and indentation interact in Textmate, I am not sure if it is possible. In the
-  		meantime, I have implemented Python-style folding anchored at newlines.
-  		Additionally, I have made some minor improvements to the numeric constant
-  		highlighting. Next up is square bracket expressions, I guess, but that
-  		should be trivial. -- ozy`
-
-'''
 fileTypes: [
   "lsp"
   "nl"
 ]
 'firstLineMatch': '^#!\\s*/.*\\bnewlisp'
+foldingStartMarker: '''
+  (?x)^ [ \t]* \(
+  	  (?<par>
+  	    ( [^()\n]++ | \( \g<par> \)? )*+
+  	  )
+  	$
+'''
+foldingStopMarker: "^\\s*$"
 patterns: [
   {
     include: "#comment"
@@ -44,9 +31,6 @@ patterns: [
   }
   {
     include: "#constants"
-  }
-  {
-    include: "#illegal"
   }
 ]
 repository:
@@ -67,7 +51,7 @@ repository:
   constants:
     patterns: [
       {
-        match: "\\b(true)|(false)\\b"
+        match: "\\btrue|false\\b"
         name: "constant.language.boolean.racket"
       }
       {
@@ -88,6 +72,7 @@ repository:
           						(?<=(\\(|\\[)) # preceded by ( or \[
           						( do|else|quasiquote|begin|if-not|if|unless|when-not|when|case|set!|
           						  cond|match|
+                        set(q|f)?|
                         let|let\\*|match-let\\*?|let\\*?-values|local|parameterize|
                         unquote|unquote-splicing|delay|
           						  letrec|values|
@@ -112,11 +97,11 @@ repository:
       {
         name: "support.function.module.racket"
         # match: "(require/typed|require|cond-require|module(\\+|\\*)?|provide|namespace-require|begin-for-syntax|lazy-require)"
-        match: "(load)"
+        match: "(load|module|context)"
       }
       {
         name: "support.function.definition.racket"
-        match: "(define-syntax-rule|define(-datatype|-struct|-values|/contract|-macro|-for-syntax|-catch|-type|-check)*|syntax-rules|syntax|defmacro|struct)"
+        match: "(define(-macro))"
       }
       {
         name: "support.function.general.racket"
@@ -125,16 +110,16 @@ repository:
           						(?<=(\\s|\\()) # preceded by space or (
           						(
           						  # List processing, flow control and integer arithmetic
-          						  and|append|apply|args|assoc|begin|bind|bigint|case|catch|chop|clean|collect|cond|cons|constant|count|curry|def-new|define|define-macro|difference|do-until|do-while|doargs|dolist|dostring|dotimes|dotree|dup|ends-with|exists|eval|expand|extend|first|filter|find|find-all|flat|fn|for|for-all|if|index|intersect|lambda|lambda-macro|last|length|let|letex|letn|list|local|lookup|map|match|member|not|nth|or|pop|pop-assoc|push|quote|ref|ref-all|rest|replace|reverse|rotate|select|self|set|set-ref|set-ref-all|setf setq|silent|slice|sort|starts-with|swap|unify|unique|union|unless|until|when|while|
+          						  and|append|apply|args|assoc|begin|bind|bigint|case|catch|chop|clean|collect|cond|cons|constant|count|curry|def-new|difference|do-until|do-while|doargs|dolist|dostring|dotimes|dotree|dup|ends-with|exists|eval|expand|extend|first|filter|find|find-all|flat|fn|for|for-all|if|index|intersect|lambda|lambda-macro|last|length|let|letex|letn|list|local|lookup|map|match|member|not|nth|or|pop|pop-assoc|push|quote|ref|ref-all|rest|replace|reverse|rotate|select|self|set|set-ref|set-ref-all|silent|slice|sort|starts-with|swap|unify|unique|union|unless|until|when|while|
 
           						  # String and conversion functions
-          						  address|append|bigint|bits|char|chop|dup|ends-with|encrypt|eval-string|eval-string-js|explode|extend|find|first|float|format|get-char|get-float|get-int|get-long|get-string|int|join|last|lower-case|member|name|nth|pack|parse|pop|push|regex|regex-comp|replace|rest|reverse|rotate|select|setf|slice|source|starts-with|string|sym|title-case|trim|unicode|unpack|upper-case|utf8|utf8len|
+          						  address|append|bigint|bits|char|chop|dup|ends-with|encrypt|eval-string|eval-string-js|explode|extend|find|first|float|format|get-char|get-float|get-int|get-long|get-string|int|join|last|lower-case|member|name|nth|pack|parse|pop|push|regex|regex-comp|replace|rest|reverse|rotate|select|slice|source|starts-with|string|sym|title-case|trim|unicode|unpack|upper-case|utf8|utf8len|
 
                         # Array functions
-                        append|array|array-list|array?|det|first|invert|last|mat|multiply|nth|rest|setf|slice|transpose|
+                        append|array|array-list|array?|det|first|invert|last|mat|multiply|nth|rest|slice|transpose|
 
                         # Predicates
-                        (array|atom|bigint|context|directory|empty|even|file|float|global|inf|integer|lambda|legal|list|macro|NaN|nil|null|odd|number|primitive|protected|quote|string|symbol|true|zero)\?|
+                        (array|atom|bigint|context|directory|empty|even|file|float|global|inf|integer|lambda|legal|list|macro|NaN|nil|null|odd|number|primitive|protected|quote|string|symbol|true|zero)\\?|
 
                         # Date and datetime functions
                         date|date-list|date-parse|date-value|now|time|time-of-day|
@@ -149,7 +134,7 @@ repository:
                         change-dir|copy-file|delete-file|directory|file-info|make-dir|real-path|remove-dir|rename-file|
 
                         # System functions
-                        callback|catch|context|copy|debug|default|delete|env|exit|global|import|main-args|new|pretty-print|read-expr|reset|signal|sleep|struct|sym|symbols|timer|throw|throw-error|trace|trace-highlight|
+                        callback|catch|context|copy|debug|default|delete|env|exit|global|import|main-args|new|pretty-print|read-expr|reset|signal|sleep|struct|sym|symbols|timer|throw|throw-error|trace|trace-highlight
           						)
           						(?=(\\s|\\(|\\))) # followed by space or ( or )
 
@@ -256,9 +241,6 @@ repository:
       {
         include: "#quote"
       }
-      {
-        include: "#illegal"
-      }
     ]
   sexp:
     begin: "(\\()"
@@ -281,11 +263,11 @@ repository:
         begin: '''
           (?x)
           						(?<=\\()       # preceded by (
-          						(define|define-catch)\\s+   # define
+          						(define|define-catch|define-macro)\\s+   # define
           						(\\()          # list of parameters
           						  ([[:alnum:]][[:alnum:]!$%&*+-./:<=>?@^_~]*)
           						  ((\\s+
-          						    ([[:alnum:]][[:alnum:]!$%&*+-./:<=>?@^_~]*|[._])
+          						    ([[:alnum:]][[:alnum:]!$%&*+-./:<=>?@^_~]*|[,._])
           						   )*
           						  )\\s*
           						(\\))
@@ -309,9 +291,6 @@ repository:
           }
           {
             include: "#sexp"
-          }
-          {
-            include: "#illegal"
           }
         ]
       }
@@ -444,20 +423,22 @@ repository:
           }
         ]
       }
+      # [text] string
       {
-        name: "string.unquoted.herestring.racket"
-        # match: "(?sm)^\\s*#<<(?<label>\\S+)\\s*$.*^\\s*\\g<label>\\s*$"
-        # match: "(?m)^\\s*#<<(\\w+)\\s*\\n[\\w\\W\n]*?\\n\\s*\\1\\s*$" <- for some unknown reason doesn't work here
-        begin: "^\\s*#<<(\\w+)\\s*$"
-        end: "^\\s*\\1\\s*$"
+        'begin': '\\[text\\]'
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.definition.string.begin.newlisp'
+        'end': '\\[\\/text\\]'
+        'endCaptures':
+          '0':
+            'name': 'punctuation.definition.string.end.newlisp'
+        'name': 'string.quoted.tagged.newlisp'
+        'patterns': [
+          {
+            'match': '\\\\.'
+            'name': 'string.quoted.tagged.newlisp'
+          }
+        ]
       }
-      # {
-      #   name: "string.unquoted.herestring.racket"
-      #   match: '''
-      #     (?xm)
-      #       ^.*\\#<<(?<label> [a-z]+ ) .* $
-      #       [\\s\\S]*?
-      #       ^[ \\t]* \\g<label> [ \\t]*? $
-      #   '''
-      # }
     ]
